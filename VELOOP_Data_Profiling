@@ -1,0 +1,14 @@
+VELOOP_Data_Profiling/
+│
+├── main.py
+├── profiler.py
+├── exporter.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+│
+├── data/
+│   └── .gitkeep
+│
+└── output/
+    └── .gitkeep
