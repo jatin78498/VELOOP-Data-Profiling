@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+
+# Generated output reports
+output/
+VELOOP_Profile_Output.xlsx
+
+# Jupyter Notebook temporary files
+.ipynb_checkpoints/
+
+# Editor and operating system files
+.DS_Store
+.vscode/
+.idea/
