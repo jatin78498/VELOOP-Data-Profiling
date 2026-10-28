@@ -1,53 +1,51 @@
+
 from pathlib import Path
-import argparse
+from flask import Flask, jsonify
+import traceback
 
 from profiler import profile_workbook
 from exporter import export_profile
 
+app = Flask(__name__)
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="VELOOP Data Profiling Project"
-    )
 
-    parser.add_argument(
-        "--input",
-        default="data/VELoop_Rewards_Data_01.xlsx",
-        help="Path to input Excel file"
-    )
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "message": "VELOOP Data Profiling API is running",
+        "status": "success"
+    })
 
-    parser.add_argument(
-        "--output",
-        default="output/VELOOP_Profile_Output.xlsx",
-        help="Path to output Excel report"
-    )
 
-    args = parser.parse_args()
+@app.route("/profile", methods=["GET", "POST"])
+def run_profiling():
+    try:
+        input_file = Path("data/VELoop_Rewards_Data_01.xlsx")
+        output_file = Path("output/VELOOP_Profile_Output.xlsx")
 
-    input_file = Path(args.input)
-    output_file = Path(args.output)
+        if not input_file.exists():
+            return jsonify({
+                "error": "Input Excel file not found",
+                "path": str(input_file)
+            }), 404
 
-    if not input_file.exists():
-        raise FileNotFoundError(
-            f"Input file not found: {input_file.resolve()}"
+        results = profile_workbook(input_file)
+
+        output_file.parent.mkdir(
+            parents=True,
+            exist_ok=True
         )
 
-    print("=" * 60)
-    print("VELOOP DATA PROFILING STARTED")
-    print("=" * 60)
+        export_profile(results, output_file)
 
-    results = profile_workbook(input_file)
+        return jsonify({
+            "message": "Data profiling completed successfully",
+            "output": str(output_file)
+        })
 
-    output_file.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    except Exception as e:
+        app.logger.exception("Profiling failed")
+        return jsonify({
+            "error": str(e)
+        }), 500
 
-    export_profile(results, output_file)
-
-    print("\nDATA PROFILING COMPLETED SUCCESSFULLY!")
-    print(f"Output report: {output_file.resolve()}")
-
-
-if __name__ == "__main__":
-    main()
